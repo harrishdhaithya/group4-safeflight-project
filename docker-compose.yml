@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: safeflight-postgres
+    environment:
+      POSTGRES_DB: safeflight
+      POSTGRES_USER: ${POSTGRES_USER:-safeflight}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-safeflight}
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U safeflight -d safeflight"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: ${DOCKER_REGISTRY:-docker.io}/${IMAGE_NAME:-harrishka/safeflight}:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: safeflight-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/safeflight
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-safeflight}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-safeflight}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+    ports:
+      - "8080:8080"
+
+volumes:
+  db_data:
+
