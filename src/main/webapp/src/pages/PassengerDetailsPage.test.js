@@ -24,8 +24,7 @@ const renderWithState = (state) =>
     </MemoryRouter>
   );
 
-const fillPassenger = (seatId) => {
-  const inputs = document.querySelectorAll(`input[type="text"], input[type="date"], input[type="tel"], input[type="email"]`);
+const fillPassenger = () => {
   fireEvent.change(document.querySelector('input[type="text"]'), { target: { value: 'John' } });
   const textInputs = document.querySelectorAll('input[type="text"]');
   fireEvent.change(textInputs[1], { target: { value: 'Doe' } });
@@ -37,7 +36,7 @@ const fillPassenger = (seatId) => {
 
 describe('PassengerDetailsPage', () => {
   beforeEach(() => {
-    global.fetch = jest.fn();
+    globalThis.fetch = jest.fn();
     mockNavigate.mockClear();
   });
 
@@ -115,7 +114,7 @@ describe('PassengerDetailsPage', () => {
     renderWithState({ selectedSeats: ['1A'] });
     await waitFor(() => expect(fetch).toHaveBeenCalled());
     await screen.findByRole('button', { name: /Proceed to payment/ });
-    fillPassenger('1A');
+    fillPassenger();
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /Proceed to payment/ })).not.toBeDisabled()
     );
@@ -127,7 +126,7 @@ describe('PassengerDetailsPage', () => {
     renderWithState({ selectedSeats: ['1A'] });
     await waitFor(() => expect(fetch).toHaveBeenCalled());
     await screen.findByRole('button', { name: /Proceed to payment/ });
-    fillPassenger('1A');
+    fillPassenger();
     fireEvent.change(document.querySelector('input[type="text"]'), { target: { value: '   ' } });
     expect(screen.getByRole('button', { name: /Proceed to payment/ })).toBeDisabled();
   });
@@ -181,7 +180,7 @@ describe('PassengerDetailsPage', () => {
     renderWithState({ selectedSeats: ['1A'], seatPricingSummary: { totalAmount: 300 } });
     await waitFor(() => expect(fetch).toHaveBeenCalled());
     await screen.findByRole('button', { name: /Proceed to payment/ });
-    fillPassenger('1A');
+    fillPassenger();
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /Proceed to payment/ })).not.toBeDisabled()
     );

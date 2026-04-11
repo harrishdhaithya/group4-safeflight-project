@@ -39,7 +39,7 @@ const fillValidBilling = () => {
 
 describe('PaymentPage', () => {
   beforeEach(() => {
-    global.fetch = jest.fn();
+    globalThis.fetch = jest.fn();
     mockNavigate.mockClear();
   });
 

@@ -28,9 +28,9 @@ const renderWithState = (state) =>
 
 describe('ConfirmationPage', () => {
   beforeEach(() => {
-    global.fetch = jest.fn();
-    global.URL.createObjectURL = jest.fn(() => 'blob:mock');
-    global.URL.revokeObjectURL = jest.fn();
+    globalThis.fetch = jest.fn();
+    globalThis.URL.createObjectURL = jest.fn(() => 'blob:mock');
+    globalThis.URL.revokeObjectURL = jest.fn();
   });
 
   afterEach(() => jest.clearAllMocks());

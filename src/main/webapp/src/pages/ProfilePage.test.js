@@ -27,7 +27,7 @@ const renderPage = (user) =>
 
 describe('ProfilePage', () => {
   beforeEach(() => {
-    global.fetch = jest.fn();
+    globalThis.fetch = jest.fn();
     mockRefreshMe.mockClear();
   });
 
