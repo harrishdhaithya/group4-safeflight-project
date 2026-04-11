@@ -115,14 +115,16 @@ describe('ProfilePage', () => {
     expect(await screen.findByText('Paid')).toBeInTheDocument();
   });
 
-  // PROF-12: paymentStatus non-SUCCESS → raw value
+  // PROF-12: paymentStatus non-SUCCESS → raw value with bg-secondary badge
   test('shows raw paymentStatus for non-SUCCESS', async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => [{ bookingId: 1, flightCode: 'X', fromAirport: 'A', toAirport: 'B', status: 'PENDING', paymentStatus: 'PENDING', seats: [] }]
+      json: async () => [{ bookingId: 1, flightCode: 'X', fromAirport: 'A', toAirport: 'B', status: 'CONFIRMED', paymentStatus: 'FAILED', seats: [] }]
     });
     renderPage(mockUser);
-    expect(await screen.findByText('PENDING')).toBeInTheDocument();
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    const badge = await screen.findByText('FAILED');
+    expect(badge).toHaveClass('bg-secondary');
   });
 
   // PROF-13: paymentStatus absent → "—"
