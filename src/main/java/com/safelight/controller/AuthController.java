@@ -18,6 +18,9 @@ import java.util.Optional;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private static final String SESSION_USER_ID = "USER_ID";
+    private static final String NOT_LOGGED_IN = "Not logged in";
+
     private final UserRepository userRepository;
 
     public AuthController(UserRepository userRepository) {
@@ -57,21 +60,21 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
 
-        session.setAttribute("USER_ID", user.getId());
+        session.setAttribute(SESSION_USER_ID, user.getId());
         return ResponseEntity.ok(toResponse(user));
     }
 
     @GetMapping("/me")
     public ResponseEntity<?> currentUser(HttpSession session) {
-        Object idAttr = session.getAttribute("USER_ID");
+        Object idAttr = session.getAttribute(SESSION_USER_ID);
         if (!(idAttr instanceof Integer)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(NOT_LOGGED_IN);
         }
 
         Integer userId = (Integer) idAttr;
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(NOT_LOGGED_IN);
         }
 
         return ResponseEntity.ok(toResponse(userOpt.get()));
@@ -85,14 +88,14 @@ public class AuthController {
 
     @PutMapping("/me")
     public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest request, HttpSession session) {
-        Object idAttr = session.getAttribute("USER_ID");
+        Object idAttr = session.getAttribute(SESSION_USER_ID);
         if (!(idAttr instanceof Integer)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(NOT_LOGGED_IN);
         }
         Integer userId = (Integer) idAttr;
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(NOT_LOGGED_IN);
         }
         User user = userOpt.get();
         if (request.getFname() != null) user.setFname(request.getFname());
@@ -102,7 +105,7 @@ public class AuthController {
         if (request.getDob() != null && !request.getDob().isBlank()) {
             try {
                 user.setDob(LocalDate.parse(request.getDob()));
-            } catch (Exception ignored) {
+            } catch (Exception _) {
                 // leave dob unchanged on parse error
             }
         } else if (request.getDob() != null && request.getDob().isBlank()) {

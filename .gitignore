@@ -79,3 +79,5 @@ aws/safeflight-app-key.pem
 # Local test case CSVs
 unit-tests-epic3.csv
 integration-tests-epic3.csv
+
+test-plans/*

@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/bookings")
 public class BookingController {
 
+    private static final String SESSION_USER_ID = "USER_ID";
+    private static final String NOT_LOGGED_IN = "Not logged in";
+
     private final UserRepository userRepository;
     private final FlightScheduleRepository flightScheduleRepository;
     private final BookingRepository bookingRepository;
@@ -47,9 +50,9 @@ public class BookingController {
 
     @GetMapping("/me")
     public ResponseEntity<?> listMyBookings(HttpSession session) {
-        Object idAttr = session.getAttribute("USER_ID");
+        Object idAttr = session.getAttribute(SESSION_USER_ID);
         if (!(idAttr instanceof Integer)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(NOT_LOGGED_IN);
         }
         Integer userId = (Integer) idAttr;
 
@@ -81,15 +84,15 @@ public class BookingController {
     @PostMapping
     @Transactional
     public ResponseEntity<?> createBooking(@RequestBody CreateBookingRequest request, HttpSession session) {
-        Object idAttr = session.getAttribute("USER_ID");
+        Object idAttr = session.getAttribute(SESSION_USER_ID);
         if (!(idAttr instanceof Integer)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(NOT_LOGGED_IN);
         }
         Integer userId = (Integer) idAttr;
 
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(NOT_LOGGED_IN);
         }
 
         if (request == null || request.getScheduleId() == null ||
@@ -150,7 +153,7 @@ public class BookingController {
             if (seat.getDob() != null && !seat.getDob().isBlank()) {
                 try {
                     passenger.setDob(LocalDate.parse(seat.getDob()));
-                } catch (Exception ignored) {
+                } catch (Exception _) {
                     passenger.setDob(null);
                 }
             }
@@ -186,7 +189,7 @@ public class BookingController {
             if (seat.getDob() != null && !seat.getDob().isBlank()) {
                 try {
                     pd.setDob(LocalDate.parse(seat.getDob()));
-                } catch (Exception ignored) {
+                } catch (Exception _) {
                     pd.setDob(null);
                 }
             }
@@ -211,9 +214,9 @@ public class BookingController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getBooking(@PathVariable Integer id, HttpSession session) {
-        Object idAttr = session.getAttribute("USER_ID");
+        Object idAttr = session.getAttribute(SESSION_USER_ID);
         if (!(idAttr instanceof Integer)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(NOT_LOGGED_IN);
         }
         Integer userId = (Integer) idAttr;
 
@@ -268,9 +271,9 @@ public class BookingController {
 
     @PostMapping("/{id}/pay")
     public ResponseEntity<?> recordPayment(@PathVariable Integer id, HttpSession session) {
-        Object idAttr = session.getAttribute("USER_ID");
+        Object idAttr = session.getAttribute(SESSION_USER_ID);
         if (!(idAttr instanceof Integer)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(NOT_LOGGED_IN);
         }
         Integer userId = (Integer) idAttr;
 
@@ -292,9 +295,9 @@ public class BookingController {
 
     @GetMapping(value = "/{id}/ticket/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> downloadTicketPdf(@PathVariable Integer id, HttpSession session) {
-        Object idAttr = session.getAttribute("USER_ID");
+        Object idAttr = session.getAttribute(SESSION_USER_ID);
         if (!(idAttr instanceof Integer)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(NOT_LOGGED_IN);
         }
         Integer userId = (Integer) idAttr;
 

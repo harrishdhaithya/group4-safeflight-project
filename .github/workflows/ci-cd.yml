@@ -438,6 +438,8 @@ jobs:
           cov_stmt = "N/A"
           cov_branch = "N/A"
           backend_line_cov = "N/A"
+          backend_branch_cov = "N/A"
+          backend_method_cov = "N/A"
           f_total = f_passed = f_failed = f_errors = f_skipped = 0
           f_pass_pct = 0.0
           e_total = e_passed = e_failed = e_errors = e_skipped = 0
@@ -490,10 +492,10 @@ jobs:
           if backend_cov_files:
               try:
                   root = ET.parse(backend_cov_files[0]).getroot()
-                  line_counter = next(
-                      (c for c in root.findall("counter") if c.attrib.get("type") == "LINE"),
-                      None,
-                  )
+                  counters = {c.attrib.get("type"): c for c in root.findall("counter")}
+                  line_counter = counters.get("LINE")
+                  branch_counter = counters.get("BRANCH")
+                  method_counter = counters.get("METHOD")
                   if line_counter is not None:
                       covered = int(line_counter.attrib.get("covered", 0))
                       missed = int(line_counter.attrib.get("missed", 0))
@@ -501,6 +503,16 @@ jobs:
                       backend_line_cov = (
                           f"{round((covered / total_lines) * 100, 2)}%" if total_lines else "0.0%"
                       )
+                  if branch_counter is not None:
+                      bc = int(branch_counter.attrib.get("covered", 0))
+                      bm = int(branch_counter.attrib.get("missed", 0))
+                      bt = bc + bm
+                      backend_branch_cov = f"{round((bc / bt) * 100, 2)}%" if bt else "0.0%"
+                  if method_counter is not None:
+                      mc = int(method_counter.attrib.get("covered", 0))
+                      mm = int(method_counter.attrib.get("missed", 0))
+                      mt = mc + mm
+                      backend_method_cov = f"{round((mc / mt) * 100, 2)}%" if mt else "0.0%"
               except Exception:
                   backend_line_cov = "N/A"
 
@@ -514,7 +526,11 @@ jobs:
           | E2E (Playwright) | {e_total} | {e_passed} | {e_pass_pct}% | {e_failed} | {e_errors} | {e_skipped} |
 
           ### Backend Coverage
-          - Line Coverage: {backend_line_cov}
+          | Metric | Coverage |
+          |---|---:|
+          | Line | {backend_line_cov} |
+          | Branch | {backend_branch_cov} |
+          | Method | {backend_method_cov} |
 
           ### Frontend Coverage
           - Line Coverage: {cov_line}
